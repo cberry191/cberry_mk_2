@@ -1,9 +1,9 @@
 import { Parallax, ParallaxLayer } from '@react-spring/parallax'
-import { useSpring, animated, useSpringRef } from '@react-spring/web'
+import { useSpring, animated } from '@react-spring/web'
 import { useRef } from 'react'
 
 import stars from '../assets/images/Stars.png'
-import starsFlipped from '../assets/images/Stars_flipped.png'
+import Contact from './contact'
 
 export default function Home() {
     const starProps = useSpring({
@@ -60,7 +60,7 @@ export default function Home() {
 
                 <ParallaxLayer offset={3}>
                     <div ref={contactRef} className='ml-32'>
-                        <h1>CONTACT</h1>
+                        <Contact />
                     </div>
                 </ParallaxLayer>
 
