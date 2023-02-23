@@ -2,7 +2,9 @@ import Home from "./components/home";
 
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { collection, addDoc } from "firebase/firestore";
+import { atom } from "jotai";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_REACT_APP_API_KEY,
@@ -14,17 +16,12 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+export const appAtom = atom(app);
 
-try {
-  const docRef = await addDoc(collection(db, "messages"), {
-    email: "email@test.com",
-    message: "message2",
-  });
-  console.log("Document written with ID: ", docRef.id);
-} catch (e) {
-  console.error("Error adding document: ", e);
-}
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("6LdUVackAAAAAAGLsHPraZKb7YE3LFvloltGZfhV"),
+  isTokenAutoRefreshEnabled: false,
+});
 
 function App() {
   return (
