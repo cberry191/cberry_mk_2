@@ -55,7 +55,7 @@ export default function Home() {
               <div className="flex items-end justify-between mb-5">
                 <div className="flex justify-around items-end w-2/5">
                   <h1 className="text-8xl font-mono">Berry</h1>
-                  <h4>DIGITAL</h4>
+                  <h4 className="italic">DIGITAL</h4>
                 </div>
 
                 <div className="flex justify-around w-2/5 italic mb-6 items-center">
@@ -97,14 +97,15 @@ export default function Home() {
             <div className="w-1/3 flex flex-col p-6" ref={aboutRef}>
               <p>
                 I'm Christopher Berry, an independent developer with a passion
-                for helping people make more efficient use of their time.
+                for helping people and businesses make better use of their time.
               </p>
-              <p className="mt-8">I can help you with:</p>
-              <ul className="ml-4 mt-4">
-                <li>Automating tasks</li>
-                <li>Gaining insights from data</li>
-                <li>Delivering your message</li>
+              <p className="mt-8">Whether you need:</p>
+              <ul className="ml-4 mt-4 mb-4">
+                <li>An app or website</li>
+                <li>Help understanding your data</li>
+                <li>Your message communicated</li>
               </ul>
+              <p>I can help you.</p>
               <p className="mt-6 justify-self-center italic">
                 Get in touch with me today!
               </p>
@@ -113,7 +114,7 @@ export default function Home() {
           </div>
         </ParallaxLayer>
 
-        <ParallaxLayer offset={1.75}>
+        <ParallaxLayer offset={1.8}>
           <div ref={detailsRef}>
             <div className="flex flex-col justify-center items-center">
               <h1>WEBSITE POWERED BY</h1>

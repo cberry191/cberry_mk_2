@@ -1,10 +1,9 @@
 import Home from "./components/home";
 
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-import { collection, addDoc } from "firebase/firestore";
-import { atom } from "jotai";
+import { atom, useAtom } from "jotai";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_REACT_APP_API_KEY,
@@ -18,12 +17,33 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const appAtom = atom(app);
 
+export const authAtom = atom("");
+
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider("6LdUVackAAAAAAGLsHPraZKb7YE3LFvloltGZfhV"),
   isTokenAutoRefreshEnabled: false,
 });
 
 function App() {
+  const [uid, setUid] = useAtom(authAtom);
+
+  const auth = getAuth();
+  signInAnonymously(auth)
+    .then((userCredential) => {
+      // console.log("Logged in as: ", userCredential.user.uid);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setUid(user.uid);
+      const uidAtom = atom(user.uid);
+      // console.log("User in state: ", uid);
+    }
+  });
+
   return (
     <>
       <Home />

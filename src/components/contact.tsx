@@ -1,34 +1,56 @@
 import { atom, useAtom } from "jotai";
 import { collection, addDoc, getFirestore } from "firebase/firestore";
-import { appAtom } from "../App";
+import { appAtom, authAtom } from "../App";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useRef, useState } from "react";
 
-export const nameAtom = atom("");
-export const emailAtom = atom("");
-export const messageAtom = atom("");
+type FormData = {
+  enquirerName: string;
+  email: string;
+  message: string;
+};
 
 export default function contact() {
-  const [enquirerName, setName] = useAtom(nameAtom);
-  const handleNameChange = (e) => setName(e.target.value);
+  const [uid, setUid] = useAtom(uidAtom);
+  console.log(uid);
 
-  const [email, setEmail] = useAtom(emailAtom);
-  const handleEmailChange = (e) => setEmail(e.target.value);
+  const formik = useFormik({
+    initialValues: {
+      enquirerName: "",
+      email: "",
+      message: "",
+      date: new Date(),
+      uid: uid,
+    },
+    validationSchema: Yup.object({
+      enquirerName: Yup.string()
+        .max(20, "Your name is too long")
+        .required("Required"),
+      email: Yup.string().email("Invalid email address").required("Required"),
+      message: Yup.string()
+        .max(200, "Your message is too long")
+        .required("Please leave a message"),
+    }),
+    onSubmit: (values) => {
+      sendMessage(values);
+      formik.resetForm();
+    },
+    validateOnChange: false,
+    validateOnBlur: false,
+  });
 
-  const [message, setMessage] = useAtom(messageAtom);
-  const handleMessageChange = (e) => setMessage(e.target.value);
+  const [sentStatus, setSentStatus] = useState(false);
 
   const [app, setApp] = useAtom(appAtom);
   const db = getFirestore(app);
 
-  async function sendMessage() {
-    console.log(enquirerName, email, message);
-
+  async function sendMessage(data: FormData) {
+    console.log(data);
     try {
-      const docRef = await addDoc(collection(db, "messages"), {
-        name: enquirerName,
-        email: email,
-        message: message,
-      });
+      const docRef = await addDoc(collection(db, "messages"), { ...data });
       console.log("Message left with ID: ", docRef.id);
+      setSentStatus(true);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -36,32 +58,72 @@ export default function contact() {
 
   return (
     <div className="flex flex-col gap-8 w-1/3 text-black">
-      <input
-        type="text"
-        value={enquirerName}
-        onChange={handleNameChange}
-        placeholder="Your Name"
-        className="w-1/2 pl-2"
-      />
-      <input
-        type="text"
-        value={email}
-        onChange={handleEmailChange}
-        placeholder="Your Email"
-        className="w-1/2 pl-2"
-      />
-      <textarea
-        value={message}
-        onChange={handleMessageChange}
-        placeholder="Your Message"
-        className="h-40 p-2"
-      />
-      <input
-        type="button"
-        value="Send Message"
-        className="h-10 border text-white"
-        onClick={sendMessage}
-      />
+      <form
+        onSubmit={formik.handleSubmit}
+        className="flex flex-col   text-black"
+      >
+        <input
+          type="text"
+          id="enquirerName"
+          name="enquirerName"
+          onChange={formik.handleChange}
+          value={formik.values.enquirerName}
+          onBlur={formik.handleBlur}
+          placeholder="Your Name"
+          className="pl-2 "
+        />
+        <div className="h-8">
+          {formik.errors.enquirerName ? (
+            <div className="text-red-700 text-sm italic">
+              {formik.errors.enquirerName}
+            </div>
+          ) : null}
+        </div>
+
+        <input
+          type="text"
+          id="email"
+          name="email"
+          onChange={formik.handleChange}
+          value={formik.values.email}
+          onBlur={formik.handleBlur}
+          placeholder="Your Email"
+          className="pl-2 "
+        />
+        <div className="h-12">
+          {formik.errors.email ? (
+            <div className="text-red-700 text-sm italic">
+              {formik.errors.email}
+            </div>
+          ) : null}
+        </div>
+
+        <textarea
+          id="message"
+          name="message"
+          onChange={formik.handleChange}
+          value={formik.values.message}
+          onBlur={formik.handleBlur}
+          placeholder="Your Message"
+          className="h-40 p-2 "
+        />
+        <div className="h-8 ">
+          {formik.errors.message ? (
+            <div className="text-red-700 text-sm italic">
+              {formik.errors.message}
+            </div>
+          ) : null}
+        </div>
+
+        <button type="submit" className="h-10 border text-white">
+          Send Message
+        </button>
+        <div className="flex h-8 justify-center">
+          {sentStatus ? (
+            <div className="text-white text-sm italic mt-6">Message Sent!</div>
+          ) : null}
+        </div>
+      </form>
     </div>
   );
 }
